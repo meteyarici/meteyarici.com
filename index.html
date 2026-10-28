@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mete Yarıcı — Senior Software Developer</title>
+    <style>
+        /* ---------- Temel sıfırlama ---------- */
+        *, *::before, *::after { box-sizing: border-box; }
+        html { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; }
+        body, h1, h2, h3, p { margin: 0; }
+        h1, h2, h3 { font-size: inherit; font-weight: inherit; }
+        a { color: inherit; text-decoration: inherit; }
+        svg { display: block; }
+
+        /* ---------- Renkler (zinc paleti) ---------- */
+        :root {
+            --zinc-100: #f4f4f5;
+            --zinc-200: #e4e4e7;
+            --zinc-300: #d4d4d8;
+            --zinc-400: #a1a1aa;
+            --zinc-500: #71717a;
+            --zinc-800: #27272a;
+            --zinc-900: #18181b;
+            --zinc-950: #09090b;
+            --s: 60px; /* sayfa kıvrımının boyutu */
+        }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #1a1a1e; /* kâğıdın altındaki yüzey */
+        }
+        body {
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            color: var(--zinc-100);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        ::selection { background: var(--zinc-800); color: #fff; }
+
+        /* ---------- İçerik düzeni ---------- */
+        .content {
+            max-width: 42rem;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5rem;
+        }
+        .hero { display: flex; flex-direction: column; gap: 1rem; }
+        .name {
+            font-size: 1.875rem; line-height: 2.25rem;
+            font-weight: 700; letter-spacing: -0.025em; color: #fff;
+        }
+        .role {
+            font-size: 1rem; line-height: 1.5rem;
+            font-weight: 500; color: var(--zinc-400);
+        }
+        .bio { padding-top: 0.5rem; color: var(--zinc-300); line-height: 1.625; }
+        .links {
+            display: flex; align-items: center; gap: 1.5rem;
+            padding-top: 0.75rem; font-size: 0.875rem; line-height: 1.25rem;
+            color: var(--zinc-400);
+        }
+        .links a { transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1); }
+        .links a:hover { color: #fff; }
+
+        .projects { display: flex; flex-direction: column; gap: 2rem; }
+        .section-title {
+            font-size: 1.125rem; line-height: 1.75rem;
+            font-weight: 600; letter-spacing: -0.025em; color: #fff;
+            border-bottom: 1px solid var(--zinc-900);
+            padding-bottom: 0.75rem;
+        }
+        .project-list { display: flex; flex-direction: column; gap: 2.5rem; }
+        .project { display: flex; flex-direction: column; gap: 0.5rem; }
+        .project-head {
+            display: flex; flex-direction: column; gap: 0.25rem;
+        }
+        .project-title {
+            font-weight: 500; color: #fff;
+            transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .project:hover .project-title { color: var(--zinc-200); }
+        .project-tags {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.75rem; line-height: 1rem; color: var(--zinc-500);
+        }
+        .project-desc {
+            font-size: 0.875rem; line-height: 1.625; color: var(--zinc-400);
+        }
+
+        @media (min-width: 640px) {
+            .project-head { flex-direction: row; align-items: baseline; justify-content: space-between; }
+        }
+        @media (min-width: 768px) {
+            .content { padding-top: 7rem; padding-bottom: 7rem; }
+            .name { font-size: 2.25rem; line-height: 2.5rem; }
+            .role { font-size: 1.125rem; line-height: 1.75rem; }
+        }
+
+        /*
+         * Gerçekçi sayfa kıvrılması — fikir:
+         * Tüm site, ekranı kaplayan tek bir "kâğıt" (.paper). Sağ üst köşe, kıvrım çizgisinin
+         * (W-s,0)–(W,s) olduğu bir üçgen olarak kesilir (clip-path). Kesilen köşe kıvrım çizgisine
+         * göre yansıtılır: (W,0) → (W-s,s). Yansıyan üçgen kâğıdın arka yüzüdür (.flap).
+         * Kesilen yerde kâğıdın altı görünür (.under) ve GitHub bağlantısı orada durur.
+         * --s değişkeni kıvrımın boyutudur; JS yumuşakça animasyonlar.
+         */
+
+        /* --- Kâğıdın kendisi: tüm site burada, kendi içinde kayar --- */
+        .paper {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: var(--zinc-950);
+            /* çok hafif kâğıt dokusu */
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+            clip-path: polygon(0 0, calc(100% - var(--s)) 0, 100% var(--s), 100% 100%, 0 100%);
+            scrollbar-width: thin;
+            scrollbar-color: #27272a transparent;
+        }
+
+        /* --- Kâğıdın altı: kıvrım açıldığında görünen üçgen --- */
+        .under {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: var(--s);
+            height: var(--s);
+            z-index: 1;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            background:
+                /* kâğıdın alta düşürdüğü gölge: kıvrım çizgisinde koyu, köşeye doğru sönük */
+                linear-gradient(45deg, rgba(0,0,0,.75) 50%, rgba(0,0,0,0) 82%),
+                radial-gradient(circle at 100% 0, #3a3a41 0%, #1c1c20 75%);
+        }
+
+        /* --- Kıvrılan yaprak (kâğıdın arka yüzü) --- */
+        .flap-wrap {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: var(--s);
+            height: var(--s);
+            z-index: 20;
+            pointer-events: none;
+            /* iki katmanlı gölge: yakın keskin + uzak yumuşak */
+            filter:
+                drop-shadow(-2px 3px 3px rgba(0,0,0,.5))
+                drop-shadow(-12px 14px 18px rgba(0,0,0,.4));
+        }
+        .flap {
+            width: 100%;
+            height: 100%;
+            /* (W-s,0) – (W,s) – (W-s,s): yansıtılmış köşe üçgeni */
+            clip-path: polygon(0 0, 100% 100%, 0 100%);
+            border-bottom-left-radius: 8px; /* ucu hafif yuvarlak, kâğıt gibi */
+            pointer-events: auto;
+            cursor: pointer;
+            /* kıvrım çizgisinde (50%) koyu çatlak, hemen ardından silindirik parlama, sonra sönme */
+            background:
+                linear-gradient(225deg,
+                    #121215 50%,
+                    #9a9aa3 52.5%,
+                    #7a7a84 57%,
+                    #5a5a63 70%,
+                    #46464e 85%,
+                    #3a3a41 100%);
+        }
+
+        /* --- Köşedeki GitHub bağlantısı (kâğıdın altında) --- */
+        #gh-link {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 2;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            color: #d4d4d8;
+            background: #27272a;
+            box-shadow: 0 2px 10px rgba(0,0,0,.6);
+            opacity: 0;
+            pointer-events: none;
+            transition: color .2s, background .2s, transform .2s;
+        }
+        #gh-link svg { width: 1.75rem; height: 1.75rem; }
+        #gh-link:hover { color: #fff; background: #3f3f46; transform: scale(1.08); }
+
+        /* --- Köşe için görünmez, dokunmaya uygun tetikleyici --- */
+        #curl-hit {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 88px;
+            height: 88px;
+            z-index: 30;
+            background: transparent;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #curl-hit:focus-visible { outline: 2px solid #a1a1aa; outline-offset: -4px; }
+    </style>
+</head>
+<body>
+
+    <!-- 1) Kâğıdın altı + GitHub bağlantısı -->
+    <div class="under" aria-hidden="true"></div>
+    <a id="gh-link" href="https://github.com/meteyarici" target="_blank" rel="noopener noreferrer"
+       title="GitHub profilime git" aria-label="GitHub profilim" tabindex="-1">
+        <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+    </a>
+
+    <!-- 2) Kâğıt: tüm site içeriği -->
+    <div class="paper" id="paper">
+        <main class="content">
+
+            <header class="hero">
+                <h1 class="name">Mete Yarıcı</h1>
+                <p class="role">Senior Software Developer &amp; Architect</p>
+
+                <p class="bio">
+                    2008 yılından bu yana finansal yazılımlar, e-ticaret ve dağıtık sistemler üzerine ölçeklenebilir altyapılar inşa ediyorum. PHP, Go ve .NET ekosistemlerini kullanarak yüksek eşzamanlılıklı işlem yönetimi ve bulut tabanlı mimariler geliştiriyorum. Teknoloji trendlerini yakından takip ederken, performans odaklı ve sürdürülebilir sistemler tasarlamaya odaklanıyorum.
+                </p>
+
+                <div class="links">
+                    <a href="https://github.com/meteyarici" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/meteyarici/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                    <a href="mailto:meteyarici@gmail.com">E-posta</a>
+                </div>
+            </header>
+
+            <section class="projects">
+                <h2 class="section-title">Seçilmiş Projeler</h2>
+
+                <div class="project-list">
+                    <div class="project">
+                        <div class="project-head">
+                            <h3 class="project-title">Mezat 365</h3>
+                            <span class="project-tags">Go, Laravel, Redis, WebSockets</span>
+                        </div>
+                        <p class="project-desc">
+                            Gerçek zamanlı açık artırma teklifleri için özel olarak geliştirilmiş Go tabanlı WebSocket sunucusu ve Laravel altyapısına sahip çevrimiçi müzayede platformu.
+                        </p>
+                    </div>
+
+                    <div class="project">
+                        <div class="project-head">
+                            <h3 class="project-title">Eleştirel.com</h3>
+                            <span class="project-tags">Next.js, Go Fiber, PostgreSQL</span>
+                        </div>
+                        <p class="project-desc">
+                            Modern bir arayüze ve yüksek performanslı arka uç mimarisine sahip, açık kaynaklı fikir ve tartışma web platformu.
+                        </p>
+                    </div>
+
+                    <div class="project">
+                        <div class="project-head">
+                            <h3 class="project-title">Uluslararası Kargo ve Ödeme Agregatörü</h3>
+                            <span class="project-tags">PHP, .NET, GraphQL, AWS</span>
+                        </div>
+                        <p class="project-desc">
+                            Küresel ölçekte kargo taşıyıcı entegrasyonları, gümrük maliyeti hesaplama ve esnek GraphQL iş akışları barındıran e-ticaret lojistik altyapısı.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 3) Kıvrılan yaprak (arka yüz) -->
+    <div class="flap-wrap" aria-hidden="true">
+        <div class="flap" id="flap" title="Sayfayı kapat"></div>
+    </div>
+
+    <!-- 4) Köşe tetikleyicisi (klavye ve dokunmatik için gerçek buton) -->
+    <button id="curl-hit" type="button" aria-expanded="false" aria-label="Sayfa köşesini kaldır ve GitHub bağlantısını göster"></button>
+
+    <script>
+    (function () {
+        var root = document.documentElement;
+        var hit  = document.getElementById('curl-hit');
+        var flap = document.getElementById('flap');
+        var link = document.getElementById('gh-link');
+
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var touch  = window.matchMedia('(hover: none)').matches;
+
+        var IDLE  = touch ? 72 : 60;   // dururken görünen küçük kıvrım
+        var HOVER = 150;               // fare yaklaşınca
+        function openSize() { return Math.min(300, Math.min(window.innerWidth, window.innerHeight) * 0.7); }
+
+        var cur = IDLE, target = IDLE, open = false, raf = 0, last = 0;
+
+        function apply() {
+            root.style.setProperty('--s', cur.toFixed(2) + 'px');
+            // GitHub bağlantısı kıvrım büyüdükçe belirir
+            var o = Math.max(0, Math.min(1, (cur - 100) / 70));
+            link.style.opacity = o;
+            link.style.pointerEvents = (open && o > 0.5) ? 'auto' : 'none';
+        }
+
+        function tick(t) {
+            var dt = Math.min(0.05, (t - last) / 1000 || 0.016);
+            last = t;
+            cur += (target - cur) * (1 - Math.exp(-dt * 11)); // kare hızından bağımsız yumuşatma
+            if (Math.abs(target - cur) < 0.15) { cur = target; apply(); raf = 0; return; }
+            apply();
+            raf = requestAnimationFrame(tick);
+        }
+
+        function go(v) {
+            target = v;
+            if (reduce) { cur = v; apply(); return; }
+            if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+        }
+
+        function setOpen(v) {
+            open = v;
+            hit.style.display = v ? 'none' : 'block';
+            hit.setAttribute('aria-expanded', String(v));
+            link.tabIndex = v ? 0 : -1;
+            go(v ? openSize() : IDLE);
+            if (v) { link.focus({ preventScroll: true }); } else { hit.focus({ preventScroll: true }); }
+        }
+
+        // Fare köşeye yaklaştıkça kıvrım kademeli büyür
+        window.addEventListener('mousemove', function (e) {
+            if (open || touch) return;
+            var d = Math.hypot(window.innerWidth - e.clientX, e.clientY);
+            var t = Math.max(0, 1 - d / 230);
+            t = t * t * (3 - 2 * t); // smoothstep
+            go(IDLE + (HOVER - IDLE) * t);
+        });
+        document.documentElement.addEventListener('mouseleave', function () { if (!open) go(IDLE); });
+
+        hit.addEventListener('click', function (e) { e.stopPropagation(); setOpen(true); });
+        flap.addEventListener('click', function (e) { e.stopPropagation(); setOpen(false); });
+        document.addEventListener('click', function (e) {
+            if (open && !link.contains(e.target)) setOpen(false);
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) setOpen(false); });
+        window.addEventListener('resize', function () { if (open) go(openSize()); });
+
+        apply();
+    })();
+    </script>
+</body>
+</html>
